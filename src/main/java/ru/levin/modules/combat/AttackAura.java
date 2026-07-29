@@ -188,3 +188,171 @@ public class AttackAura extends Function {
     private float funtimePitchDrop = 0f;
 
     private boolean funtimeRestorePending = false;
+    private float funtimeReturnYaw = 0f;
+    private float funtimeReturnPitch = 0f;
+
+    private int funtimePrevTargetId = -1;
+    private int funtimeSwitchTicks = 0;
+    private long funtimeReactionDelayMs = 0L;
+    private long funtimeAwarenessDelayMs = 0L;
+
+    private int funtimeConsecutiveHits = 0;
+    private long funtimePostMaxCooldownMs = 0L;
+    private long funtimeLastHitTimeMs = 0L;
+    private static final int FUNTIME_MAX_CONSECUTIVE_HITS = 8;
+    private static final long FUNTIME_POST_MAX_COOLDOWN_MS = 20L;
+    private static final float FUNTIME_CRIT_BASE_INTERVAL_MS = 90f;
+    private static final float FUNTIME_CRIT_MIN_INTERVAL_MS = 35f;
+    private static final float FUNTIME_CRIT_INTERVAL_DECAY = 8f;
+
+    private float funtimeAimSpeedYaw = 0f;
+    private float funtimeAimSpeedPitch = 0f;
+    private float funtimeLastTargetYaw = 0f;
+    private float funtimeLastTargetPitch = 0f;
+
+    private float funtimeSmoothYaw = 0.40f;
+    private float funtimeSmoothPitch = 0.30f;
+    private long funtimeLastSmoothUpdate = 0L;
+    private boolean funtimeHasGroundRef = false;
+    private double funtimeGroundBodyY = 0.0d;
+    private int funtimeBodyPointIndex = 0;
+    private int funtimeBodyPointTicks = 0;
+    private int funtimeScanTicks = 0;
+    private int funtimeSnapTicks = 0;
+    private int funtimeAfkTicks = 0;
+    private float funtimePostHitDriftYaw = 0f;
+    private float funtimePostHitDriftPitch = 0f;
+    private float funtimeBreathPhase = 0f;
+    private double funtimeLastDist = 0d;
+
+    // Neuro fields for SpookyTime
+    private PerlinNoise neuroNoise;
+    private long neuroStartTime;
+    private float neuroFactor;
+
+    private float spookyAimY = 0.55f;
+    private float spookyAimYTarget = 0.55f;
+    private long spookyAimNextSwitchMs = 0L;
+
+    private float spookySwingPhase = 0f;
+    private int spookyLastSwingSign = 0;
+    private float spookyPitchDrop = 0f;
+
+    private float spookySunriseYawStatic = 0f;
+    private float spookySunrisePitchStatic = 0f;
+
+    // Perlin noise for FunTime
+    private PerlinNoise funtimeNoise;
+    private double funtimeNoiseTime = 0.0;
+
+    public AttackAura() {
+        addSettings(
+                mode,
+                targets,
+                sort,
+                setting,
+                distance,
+                rotateDistance,
+                elytraDistance,
+                correction,
+                correctionType,
+                sprintreset,
+                onlySpaceCritical,
+                critMode,
+                noAttackIfEat,
+                raycast,
+                wallAttack,
+                aiReactionMin,
+                aiReactionMax,
+                aiPredict
+        );
+    }
+
+    @Override
+    public void onEvent(Event event) {
+        ClientPlayerEntity player = mc.player;
+        if (player == null || player.isDead()) {
+            target = null;
+            preSprintTicks = 0;
+            sprintStartDelayTicks = 0;
+            sprintStartPlanned = false;
+            sprintWasActiveBeforeHit = false;
+            funtimePrevTargetId = -1;
+            funtimeSwitchTicks = 0;
+            funtimeReactionDelayMs = 0L;
+            funtimeAwarenessDelayMs = 0L;
+            funtimeConsecutiveHits = 0;
+            funtimeAimSpeedYaw = 0f;
+            funtimeAimSpeedPitch = 0f;
+            funtimeLastTargetYaw = 0f;
+            funtimeLastTargetPitch = 0f;
+            funtimeSmoothYaw = 0.40f;
+            funtimeSmoothPitch = 0.30f;
+            funtimeLastSmoothUpdate = 0L;
+            funtimeHasGroundRef = false;
+            funtimeBodyPointIndex = 0;
+            funtimeBodyPointTicks = 0;
+            funtimeBreathPhase = 0f;
+            funtimeLastDist = 0d;
+            funtimeNoiseTime = 0.0;
+            return;
+        }
+
+        if (event instanceof EventRender3D render3D) {
+            renderAITargets(render3D);
+        }
+
+        if (event instanceof EventMouse mouse) {
+            onMouseAITarget(mouse);
+        }
+
+        if (event instanceof EventKeyBoard e) {
+            if (correction.get()) {
+                float basisYaw = Manager.ROTATION.getYaw();
+
+                if (correctionType.is("Свободная")) {
+                    MoveUtil.fixMovement(e, basisYaw);
+                } else if (correctionType.is("Преследование")) {
+                    if (target != null && isValidTarget(target)) {
+                        float desiredYaw = getYawToTarget(target);
+                        applyMovementTowardsYaw(e, basisYaw, desiredYaw, true);
+                    }
+                } else if (correctionType.is("Таргетный")) {
+                    boolean pressingW = e.getMovementForward() > 0;
+                    if (pressingW && target != null && isValidTarget(target)) {
+                        float desiredYaw = getYawToTarget(target);
+                        applyMovementTowardsYaw(e, basisYaw, desiredYaw, false);
+                    }
+                }
+            }
+        }
+
+        if (event instanceof EventSprint sprint) {
+            if (sprintreset.is("Legit")) {
+                if (target != null && shouldAttack(target) && player.isSprinting()) {
+                    sprint.setSprinting(false);
+                }
+            }
+        }
+
+        if (event instanceof EventUpdate) {
+            trackAIMimicLearning();
+
+            if (sprintStartPlanned) {
+                if (sprintStartDelayTicks > 0) {
+                    sprintStartDelayTicks--;
+                }
+
+                if (sprintStartDelayTicks <= 0) {
+                    sprintStartPlanned = false;
+                    if (sprintWasActiveBeforeHit) {
+                        boolean canStartSprint = mc.player.input.movementForward > 0
+                                && !mc.player.hasStatusEffect(StatusEffects.BLINDNESS)
+                                && !mc.player.isGliding()
+                                && !mc.player.isUsingItem()
+                                && !mc.player.horizontalCollision
+                                && mc.player.getHungerManager().getFoodLevel() > 6
+                                && !mc.player.isSneaking();
+
+                        if (canStartSprint) {
+                            mc.player.networkHandler.send
