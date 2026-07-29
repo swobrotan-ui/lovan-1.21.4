@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Цели</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        h2, h3 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 0;
+            color: #555;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .options label {
+            margin-bottom: 5px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #777;
+        }
+
+        .toggle-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;	
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Цели</h1>
+
+        <div class="section">
+            <h2>Выбор</h2>
+            <div class="options">
+                <label><input type="checkbox" name="selection" value="players"> Игроки</label>
+                <label><input type="checkbox" name="selection" value="mobs"> Мобы</label>
+                <label><input type="checkbox" name="selection" value="animals"> Животные</label>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Сортировка</h2>
+            <div class="options">
+                <label><input type="radio" name="sorting" value="distance"> Дистанция</label>
+                <label><input type="radio" name="sorting" value="fov"> Поле зрения</label>
+                <label><input type="radio" name="sorting" value="smart"> Умная</label>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Обходы</h2>
+            <h3>Режим</h3>
+            <div class="options">
+                <label><input type="radio" name="bypass_mode" value="matrix"> matrix</label>
+                <label><input type="radio" name="bypass_mode" value="snap"> snap</label>
+                <label><input type="radio" name="bypass_mode" value="funtime"> funtime</label>
+            </div>
+            <h3>Обход спринта</h3>
+             <div class="options">
+                <label><input type="radio" name="sprint_bypass" value="vanilla"> vanilla</label>
+                <label><input type="radio" name="sprint_bypass" value="legit"> legit</label>
+            </div>
+            <h3>Коррекция движения</h3>
+            <div class="options">
+                <label><input type="radio" name="movement_correction" value="free"> свободный</label>
+                <label><input type="radio" name="movement_correction" value="strict"> строгий</label>
+                <label><input type="radio" name="movement_correction" value="stealthy"> незаметный</label>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Дистанции</h2>
+            <label for="attack_distance">Дистанция удара: <span id="attack-distance-value">3.0</span></label>
+            <input type="range" id="attack_distance" name="attack_distance" min="1.0" max="6.0" value="3.0" step="0.1">
+            <div class="range-labels">
+                <span>1.0</span>
+                <span>3.0</span>
+                <span>6.0</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Удары</h2>
+            <div class="toggle-option">
+                <label for="attack_while_eating">Бить когда ешь</label>
+                <label class="switch">
+                    <input type="checkbox" id="attack_while_eating">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <div class="toggle-option">
+                <label for="attack_through_walls">Бить через стены</label>
+                <label class="switch">
+                    <input type="checkbox" id="attack_through_walls">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <div class="toggle-option">
+                <label for="attack_through_shield">Бить через щит</label>
+                <label class="switch">
+                    <input type="checkbox" id="attack_through_shield">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Криты</h2>
+            <div class="toggle-option">
+                <label for="crits_with_space">Только с пробелом</label>
+                <label class="switch">
+                    <input type="checkbox" id="crits_with_space">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

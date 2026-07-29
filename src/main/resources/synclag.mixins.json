@@ -1,0 +1,12 @@
+{
+  "required": false,
+  "environment": "server",
+  "package": "ru.levin.synclag.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "MixinServerPlayerEntityDrop"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,14 @@
+pluginManagement {
+	repositories {
+		maven {
+			url = 'https://maven.fabricmc.net/'
+		}
+		gradlePluginPortal()
+		mavenCentral()
+	}
+}
+
+rootProject.name = "lovan"
+
+include ':launcher'
+project(':launcher').projectDir = file('launcher')

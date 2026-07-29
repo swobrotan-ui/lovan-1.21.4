@@ -1,0 +1,9 @@
+C:\Users\lovan\Desktop\чтото\lovan\launcher\obj\Release\net8.0-windows\win-x64\MainWindow.baml
+C:\Users\lovan\Desktop\чтото\lovan\launcher\obj\Release\net8.0-windows\win-x64\MainWindow.g.cs
+C:\Users\lovan\Desktop\чтото\lovan\launcher\obj\Release\net8.0-windows\win-x64\App.g.cs
+C:\Users\lovan\Desktop\чтото\lovan\launcher\obj\Release\net8.0-windows\win-x64\LovanLauncher_MarkupCompile.cache
+C:\Users\lovan\Desktop\чтото\lovan\launcher\obj\Release\net8.0-windows\win-x64\LovanLauncher.g.resources
+C:\Users\lovan\Desktop\чтото\lovan\launcher\obj\Release\net8.0-windows\win-x64\LovanLauncher.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\lovan\Desktop\чтото\lovan\launcher\obj\Release\net8.0-windows\win-x64\LovanLauncher.AssemblyInfoInputs.cache
+C:\Users\lovan\Desktop\чтото\lovan\launcher\obj\Release\net8.0-windows\win-x64\LovanLauncher.AssemblyInfo.cs
+C:\Users\lovan\Desktop\чтото\lovan\launcher\obj\Release\net8.0-windows\win-x64\LovanLauncher.csproj.CoreCompileInputs.cache
